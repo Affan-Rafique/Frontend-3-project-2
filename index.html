@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Restaurant Menu</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#0f141a;
+      --panel-2:#121821;
+      --border:#222b36;
+      --text:#e6edf3;
+      --muted:#8b9bb0;
+      --brand:#ff3b30;
+      --accent:#11161e;
+      --green:#22c55e;
+      --shadow:0 10px 24px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Inter,Roboto,Ubuntu,Arial,sans-serif;min-height:100vh;overflow-x:hidden}
+
+    /* Layout */
+    .app{display:flex;min-height:100vh}
+    aside{position:fixed;top:0;left:0;bottom:0;width:260px;background:var(--panel);border-right:1px solid var(--border);padding:24px;display:flex;flex-direction:column;gap:24px;overflow-y:auto;z-index:5}
+    main{margin-left:260px;flex:1;padding:20px}
+
+    /* Sidebar */
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .avatar{width:60px;height:60px;border-radius:50%;background:#e11d48;display:grid;place-items:center;font-weight:900;box-shadow:var(--shadow)}
+    .brand h2{margin:0;font-size:18px}
+    .muted{color:var(--muted)}
+    .section h4{margin:0 0 8px;color:#c7d0db;font-weight:700;font-size:14px}
+    .links{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
+
+    /* Content */
+    .banner{background:linear-gradient(135deg,#ffc857 0%,#ff8a00 100%);color:#1a1206;display:flex;align-items:center;justify-content:space-between;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:18px}
+    .banner .cta{display:flex;gap:10px}
+    .btn{appearance:none;border:0;border-radius:10px;padding:10px 16px;background:var(--brand);color:#fff;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+    .pill{border-radius:10px;border:1px solid var(--border);background:var(--panel-2);padding:10px 14px;font-weight:700;color:var(--text)}
+
+    .section-title{margin:10px 0;font-size:18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+
+    .card{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+    .thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:#0d1218}
+    .body{padding:12px 12px 48px}
+    .name{margin:0 0 4px;font-size:16px;font-weight:700}
+    .price{color:#cde3f6;font-weight:800}
+    .plus{position:absolute;right:10px;bottom:10px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--panel-2);display:grid;place-items:center;cursor:pointer;font-size:18px;color:#cde3f6}
+    .plus:active{transform:translateY(1px)}
+
+    .status{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+    .step{padding:10px;border:1px dashed var(--border);border-radius:10px;text-align:center}
+    .step.done{border-style:solid;background:rgba(34,197,94,.08);}
+
+    .log{margin-top:12px;max-height:160px;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+
+    @media (max-width:980px){aside{position:static;width:auto}main{margin-left:0}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="avatar">🍔</div>
+        <div>
+          <h2>Your Restaurant Menu</h2>
+          <div class="muted">Your Slogan</div>
+        </div>
+      </div>
+      <div class="section">
+        <h4>Quick Links</h4>
+        <ul class="links">
+          <li>1. Home</li>
+          <li>2. Your Orders</li>
+          <li>3. Wallet</li>
+          <li>4. Profile</li>
+          <li>5. Logout</li>
+        </ul>
+      </div>
+      <div class="section">
+        <h4>More About Us</h4>
+        <ul class="links">
+          <li>1. Our Blog</li>
+          <li>2. Upcoming Dishes</li>
+          <li>3. Our Story</li>
+          <li>4. Social Media Links</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main>
+      <div class="banner">
+        <div>
+          <div style="opacity:.8;font-weight:800">WEEKEND SPECIAL</div>
+          <div style="font-size:32px;line-height:1;font-weight:900">Delicious FOOD MENU</div>
+          <div style="opacity:.7">24/7 Home Delivery • Save up to 50%</div>
+        </div>
+        <div class="cta">
+          <button class="btn" id="btn-random">Order Random</button>
+          <button class="pill" id="btn-clear">Clear Log</button>
+        </div>
+      </div>
+
+      <h3 class="section-title">Menu</h3>
+      <div id="menuGrid" class="grid" aria-live="polite"></div>
+
+      <div style="margin-top:18px" id="progress" hidden>
+        <div class="status">
+          <div id="step1" class="step">1. Ordered</div>
+          <div id="step2" class="step">2. In Kitchen</div>
+          <div id="step3" class="step">3. Payment</div>
+          <div id="step4" class="step">4. Completed</div>
+        </div>
+        <pre id="log" class="log" aria-live="polite"></pre>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const JSON_URL = 'https://storage.googleapis.com/acciojob-open-file-collections/appsmith-uploads/bb3807e9b0bc49958d39563eb1759406.json';
+    const byId = (id)=>document.getElementById(id);
+    const log=(msg)=>{const el=byId('log');const d=document.createElement('div');d.textContent='['+new Date().toLocaleTimeString()+'] '+msg;el.appendChild(d);el.scrollTop=el.scrollHeight;};
+    const setStep=(n)=>byId('step'+n).classList.add('done');
+    const resetSteps=()=>[1,2,3,4].forEach(n=>byId('step'+n).classList.remove('done'));
+
+    let MENU_ITEMS=[];
+
+    async function getMenu(){
+      try{const r=await fetch(JSON_URL);MENU_ITEMS=await r.json();renderMenu(MENU_ITEMS);}catch{MENU_ITEMS=[{"id":1,"name":"Burger","price":5.99,"imgSrc":"https://storage.googleapis.com/acciojob-open-file-collections/appsmith-uploads/4f93a7b449c944a9a6ee721ff7f1dc18.png"}];renderMenu(MENU_ITEMS);}}
+
+    function TakeOrder(item){return new Promise(res=>setTimeout(()=>res({items:[item]}),2500));}
+    function orderPrep(){return new Promise(res=>setTimeout(()=>res({order_status:true,paid:false}),1500));}
+    function payOrder(){return new Promise(res=>setTimeout(()=>res({order_status:true,paid:true}),1000));}
+    function thankyouFnc(){alert('Thank you for eating with us today!');}
+
+    async function startFlow(item){byId('progress').hidden=false;resetSteps();log('---');log('Taking order for '+item.name);const o=await TakeOrder(item);setStep(1);log('Cooking...');const prep=await orderPrep();setStep(2);const pay=await payOrder();setStep(3);if(pay.paid){setStep(4);thankyouFnc();}}
+
+    function renderMenu(list){const g=byId('menuGrid');g.innerHTML='';list.forEach(i=>{const c=document.createElement('div');c.className='card';c.innerHTML=`<img class="thumb" src="${i.imgSrc}"/><div class="body"><h4 class="name">${i.name}</h4><div class="price">$${i.price}/-</div></div><button class="plus">+</button>`;c.querySelector('.plus').onclick=()=>startFlow(i);g.appendChild(c);});}
+
+    byId('btn-random').onclick=()=>{const i=MENU_ITEMS[Math.floor(Math.random()*MENU_ITEMS.length)];startFlow(i);};
+    byId('btn-clear').onclick=()=>{byId('log').innerHTML='';resetSteps();byId('progress').hidden=true;};
+    window.onload=getMenu;
+  </script>
+</body>
+</html>
